@@ -279,14 +279,15 @@ async def excel_upload(
         if not row_data or all(cell is None for cell in row_data):
             continue
 
-        # 최소 6열이어야 함 (부족하면 None으로 채움)
-        padded = list(row_data) + [None] * (6 - len(row_data))
+        # 최소 7열이어야 함 (부족하면 None으로 채움)
+        padded = list(row_data) + [None] * (7 - len(row_data))
         product_no_val = padded[0]
         product_name_val = padded[1]
         author_val = padded[2]
         rating_val = padded[3]
         title_val = padded[4]
         content_val = padded[5]
+        created_at_val = padded[6]
 
         # 유효성 검사
         row_errors: list[str] = []
@@ -317,18 +318,44 @@ async def excel_upload(
         pno = str(product_no_val).strip()
         pname = str(product_name_val).strip() if product_name_val else ""
 
-        db.execute(
-            "INSERT INTO reviews (product_no, product_name, author, rating, title, content) "
-            "VALUES (?, ?, ?, ?, ?, ?)",
-            (
-                pno,
-                pname,
-                str(author_val).strip(),
-                rating_int,
-                str(title_val).strip() if title_val else "",
-                str(content_val).strip(),
-            ),
-        )
+        # 작성일 처리 (선택, 없으면 현재 시간)
+        created_at_str = None
+        if created_at_val:
+            raw = str(created_at_val).strip()
+            # datetime 객체인 경우 (openpyxl이 날짜 셀을 자동 변환)
+            if hasattr(created_at_val, "strftime"):
+                created_at_str = created_at_val.strftime("%Y-%m-%d %H:%M:%S")
+            elif len(raw) >= 10:
+                created_at_str = raw[:10] + " 00:00:00"
+
+        if created_at_str:
+            db.execute(
+                "INSERT INTO reviews (product_no, product_name, author, rating, title, content, created_at, updated_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    pno,
+                    pname,
+                    str(author_val).strip(),
+                    rating_int,
+                    str(title_val).strip() if title_val else "",
+                    str(content_val).strip(),
+                    created_at_str,
+                    created_at_str,
+                ),
+            )
+        else:
+            db.execute(
+                "INSERT INTO reviews (product_no, product_name, author, rating, title, content) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (
+                    pno,
+                    pname,
+                    str(author_val).strip(),
+                    rating_int,
+                    str(title_val).strip() if title_val else "",
+                    str(content_val).strip(),
+                ),
+            )
 
         # 상품 테이블에 자동 등록
         db.execute(
@@ -364,7 +391,7 @@ def excel_template() -> StreamingResponse:
     ws = wb.active
     if ws is not None:
         ws.title = "리뷰"
-        ws.append(["상품번호", "상품명", "작성자명", "별점(1~5)", "리뷰제목", "리뷰내용"])
+        ws.append(["상품번호", "상품명", "작성자명", "별점(1~5)", "리뷰제목", "리뷰내용", "작성일(YYYY-MM-DD)"])
 
     buffer = BytesIO()
     wb.save(buffer)
