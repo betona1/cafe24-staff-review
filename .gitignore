@@ -43,6 +43,9 @@ htmlcov/
 # Chrome binary (크롤링용)
 chrome-linux64/
 
+# DB 백업
+backups/
+
 # 크롤링 결과물
 coupang_images_*/
 coupang_reviews_*.xlsx
