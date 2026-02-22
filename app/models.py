@@ -26,6 +26,7 @@ class ReviewUpdate(BaseModel):
     content: Optional[str] = None
     is_visible: Optional[bool] = None
     display_order: Optional[int] = None
+    created_at: Optional[str] = None
 
 
 class ImageResponse(BaseModel):
