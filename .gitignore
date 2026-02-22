@@ -38,3 +38,15 @@ htmlcov/
 
 # Claude
 .claude/projects/
+.claude/settings.local.json
+
+# Chrome binary (크롤링용)
+chrome-linux64/
+
+# 크롤링 결과물
+coupang_images_*/
+coupang_reviews_*.xlsx
+coupang_debug_*.png
+scripts/coupang_debug.png
+downloaded_files/
+~$*
