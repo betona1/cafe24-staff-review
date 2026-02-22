@@ -1,13 +1,17 @@
 """관리자 대시보드 페이지 서빙."""
 
+from pathlib import Path
+
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
 router = APIRouter(tags=["admin"])
 
+TEMPLATES_DIR = Path(__file__).resolve().parent.parent.parent / "templates"
+
 
 @router.get("/admin", response_class=HTMLResponse)
 async def admin_page() -> HTMLResponse:
     """관리자 대시보드 페이지 서빙."""
-    with open("templates/admin.html", "r", encoding="utf-8") as f:
-        return HTMLResponse(content=f.read())
+    html_path = TEMPLATES_DIR / "admin.html"
+    return HTMLResponse(content=html_path.read_text(encoding="utf-8"))
