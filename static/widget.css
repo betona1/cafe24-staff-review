@@ -1,0 +1,377 @@
+/**
+ * 카페24 스태프 리뷰 위젯 스타일
+ *
+ * 모든 클래스에 srw- 접두사를 사용하여
+ * 카페24 쇼핑몰 기존 CSS와 충돌을 방지한다.
+ * 폰트는 쇼핑몰 테마에서 상속받는다.
+ */
+
+/* ── 메인 컨테이너 ──────────────────────────────────────── */
+.srw-widget {
+    width: 100%;
+    max-width: 100%;
+    margin: 24px 0;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+    box-sizing: border-box;
+    -webkit-text-size-adjust: 100%;
+}
+
+.srw-widget *,
+.srw-widget *::before,
+.srw-widget *::after {
+    box-sizing: border-box;
+}
+
+/* ── 헤더 (평균 별점 + 리뷰 수) ─────────────────────────── */
+.srw-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    margin-bottom: 8px;
+    border-bottom: 2px solid #eee;
+}
+
+.srw-header-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.srw-rating-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: #222;
+    line-height: 1;
+}
+
+.srw-header-count {
+    font-size: 14px;
+    color: #666;
+}
+
+.srw-review-count-number {
+    font-weight: 700;
+    color: #222;
+}
+
+/* ── 별점 ────────────────────────────────────────────────── */
+.srw-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+    vertical-align: middle;
+}
+
+.srw-star {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.srw-header .srw-star {
+    font-size: 22px;
+}
+
+.srw-star-filled {
+    color: #ffc107;
+}
+
+.srw-star-empty {
+    color: #ddd;
+}
+
+/* 하프 스타 */
+.srw-star-half {
+    position: relative;
+    display: inline-block;
+    width: 1em;
+    overflow: hidden;
+}
+
+.srw-star-half .srw-star-half-filled {
+    color: #ffc107;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 50%;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.srw-star-half .srw-star-half-empty {
+    color: #ddd;
+    display: inline-block;
+}
+
+/* ── 리뷰 카드 ──────────────────────────────────────────── */
+.srw-review-list {
+    margin: 0;
+    padding: 0;
+}
+
+.srw-review-card {
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.srw-review-card:last-child {
+    border-bottom: none;
+}
+
+/* 메타 (별점 + 작성자 + 날짜) */
+.srw-review-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.srw-review-stars .srw-star {
+    font-size: 14px;
+}
+
+.srw-review-author {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+.srw-review-date {
+    font-size: 12px;
+    color: #999;
+}
+
+/* ── STAFF PICK 뱃지 ─────────────────────────────────────── */
+.srw-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.4;
+    color: #fff;
+    background-color: #6c5ce7;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+/* ── 리뷰 제목 & 본문 ──────────────────────────────────── */
+.srw-review-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 4px;
+}
+
+.srw-review-content {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.7;
+    white-space: pre-line;
+    word-break: break-word;
+}
+
+/* ── 리뷰 이미지 썸네일 ─────────────────────────────────── */
+.srw-review-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.srw-thumbnail {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 1px solid #eee;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.srw-thumbnail:hover {
+    opacity: 0.85;
+    transform: scale(1.05);
+}
+
+/* ── 라이트박스 (전체화면 이미지 뷰어) ───────────────────── */
+.srw-lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999999;
+    cursor: pointer;
+}
+
+.srw-lightbox-img {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 4px;
+    cursor: default;
+    animation: srw-fadeIn 0.2s ease;
+}
+
+.srw-lightbox-close {
+    position: absolute;
+    top: 16px;
+    right: 24px;
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 36px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 8px;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.srw-lightbox-close:hover {
+    opacity: 1;
+}
+
+@keyframes srw-fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── 페이지네이션 ────────────────────────────────────────── */
+.srw-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 20px 0 8px;
+}
+
+.srw-page-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 34px;
+    height: 34px;
+    padding: 0 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    font-family: inherit;
+    line-height: 1;
+}
+
+.srw-page-btn:hover:not(:disabled):not(.srw-page-active) {
+    background-color: #f5f5f5;
+    border-color: #bbb;
+    color: #222;
+}
+
+.srw-page-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.srw-page-active {
+    background-color: #333;
+    color: #fff;
+    border-color: #333;
+    cursor: default;
+}
+
+.srw-page-prev,
+.srw-page-next {
+    font-size: 11px;
+}
+
+/* ── 로딩 스피너 ─────────────────────────────────────────── */
+.srw-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 16px;
+    gap: 12px;
+}
+
+.srw-spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #eee;
+    border-top-color: #888;
+    border-radius: 50%;
+    animation: srw-spin 0.7s linear infinite;
+}
+
+@keyframes srw-spin {
+    to { transform: rotate(360deg); }
+}
+
+.srw-loading-text {
+    font-size: 13px;
+    color: #999;
+}
+
+/* ── 빈 상태 ─────────────────────────────────────────────── */
+.srw-empty {
+    text-align: center;
+    padding: 48px 16px;
+}
+
+.srw-empty-text {
+    font-size: 14px;
+    color: #999;
+}
+
+/* ── 에러 상태 ───────────────────────────────────────────── */
+.srw-error {
+    text-align: center;
+    padding: 48px 16px;
+}
+
+.srw-error-text {
+    font-size: 14px;
+    color: #cc3333;
+}
+
+/* ── 반응형 (모바일) ─────────────────────────────────────── */
+@media (max-width: 600px) {
+    .srw-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .srw-rating-number {
+        font-size: 20px;
+    }
+
+    .srw-review-meta {
+        gap: 6px;
+    }
+
+    .srw-thumbnail {
+        width: 64px;
+        height: 64px;
+    }
+
+    .srw-lightbox-close {
+        top: 8px;
+        right: 12px;
+        font-size: 28px;
+    }
+}

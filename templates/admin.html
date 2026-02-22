@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>스태프 리뷰 관리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ===== Reset & Base ===== */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: #1a1a2e;
+    color: #eee;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+
+/* ===== Header ===== */
+.header {
+    background: #16213e;
+    padding: 18px 32px;
+    border-bottom: 1px solid #0f3460;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+}
+
+.header-badge {
+    font-size: 12px;
+    background: #0f3460;
+    color: #7ec8e3;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-weight: 500;
+}
+
+/* ===== Container ===== */
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+/* ===== Stats Cards ===== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 12px;
+    padding: 20px 24px;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    border-color: #e94560;
+}
+
+.stat-card .stat-label {
+    font-size: 13px;
+    color: #8899aa;
+    margin-bottom: 8px;
+    font-weight: 400;
+}
+
+.stat-card .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.stat-card .stat-value .star {
+    color: #f5c518;
+}
+
+/* ===== Toolbar ===== */
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 20px;
+    background: #16213e;
+    padding: 16px 20px;
+    border-radius: 12px;
+    border: 1px solid #0f3460;
+}
+
+.toolbar .search-group {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+}
+
+.toolbar .search-group .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #556;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.toolbar input[type="text"] {
+    width: 100%;
+    padding: 10px 12px 10px 36px;
+    background: #1a1a2e;
+    border: 1px solid #0f3460;
+    border-radius: 8px;
+    color: #eee;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.toolbar input[type="text"].no-icon {
+    padding-left: 12px;
+}
+
+.toolbar input[type="text"]:focus {
+    border-color: #e94560;
+}
+
+.toolbar input[type="text"]::placeholder {
+    color: #556;
+}
+
+.product-filter {
+    width: 160px;
+    flex-shrink: 0;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+    white-space: nowrap;
+}
+
+.btn:active {
+    transform: scale(0.97);
+}
+
+.btn-primary {
+    background: #e94560;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #d63a55;
+}
+
+.btn-secondary {
+    background: #0f3460;
+    color: #ccc;
+}
+
+.btn-secondary:hover {
+    background: #153d6f;
+}
+
+.btn-danger {
+    background: transparent;
+    color: #e94560;
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+.btn-danger:hover {
+    background: rgba(233, 69, 96, 0.1);
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 13px;
+}
+
+/* ===== Table ===== */
+.table-wrapper {
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table-scroll {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+thead th {
+    background: #0f3460;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 500;
+    color: #8899aa;
+    white-space: nowrap;
+    border-bottom: 1px solid #0f3460;
+}
+
+tbody tr {
+    border-bottom: 1px solid rgba(15, 52, 96, 0.5);
+    cursor: pointer;
+    transition: background 0.12s;
+}
+
+tbody tr:hover {
+    background: rgba(15, 52, 96, 0.3);
+}
+
+tbody tr:last-child {
+    border-bottom: none;
+}
+
+tbody td {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #ccc;
+    white-space: nowrap;
+}
+
+td .stars {
+    color: #f5c518;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+td .title-cell {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ===== Toggle Switch ===== */
+.toggle {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 22px;
+}
+
+.toggle input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    inset: 0;
+    background: #333;
+    border-radius: 22px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 3px;
+    bottom: 3px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+}
+
+.toggle input:checked + .toggle-slider {
+    background: #4caf50;
+}
+
+.toggle input:checked + .toggle-slider::before {
+    transform: translateX(20px);
+}
+
+/* ===== Pagination ===== */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 16px;
+    border-top: 1px solid rgba(15, 52, 96, 0.5);
+}
+
+.pagination button {
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    background: transparent;
+    border: 1px solid #0f3460;
+    border-radius: 6px;
+    color: #8899aa;
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.pagination button:hover:not(:disabled) {
+    border-color: #e94560;
+    color: #e94560;
+}
+
+.pagination button.active {
+    background: #e94560;
+    border-color: #e94560;
+    color: #fff;
+}
+
+.pagination button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.pagination .page-info {
+    color: #556;
+    font-size: 13px;
+    margin: 0 8px;
+}
+
+/* ===== Empty State ===== */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #556;
+}
+
+.empty-state .empty-icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+}
+
+.empty-state p {
+    font-size: 15px;
+}
+
+/* ===== Modal Overlay ===== */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 1000;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    overflow-y: auto;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal {
+    background: #16213e;
+    border: 1px solid #0f3460;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 640px;
+    animation: modalIn 0.2s ease;
+}
+
+@keyframes modalIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #0f3460;
+}
+
+.modal-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.modal-close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: #8899aa;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.15s;
+}
+
+.modal-close:hover {
+    background: rgba(233, 69, 96, 0.15);
+    color: #e94560;
+}
+
+.modal-body {
+    padding: 24px;
+}
+
+.modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #0f3460;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* ===== Form Fields ===== */
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: #8899aa;
+    margin-bottom: 6px;
+}
+
+.form-group label .required {
+    color: #e94560;
+    margin-left: 2px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px 14px;
+    background: #1a1a2e;
+    border: 1px solid #0f3460;
+    border-radius: 8px;
+    color: #eee;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-input:focus {
+    border-color: #e94560;
+}
+
+textarea.form-input {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* ===== Star Rating Input ===== */
+.star-rating-input {
+    display: flex;
+    gap: 4px;
+    font-size: 28px;
+    cursor: pointer;
+    direction: ltr;
+}
+
+.star-rating-input .star-btn {
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0 2px;
+    transition: color 0.1s, transform 0.1s;
+    line-height: 1;
+}
+
+.star-rating-input .star-btn:hover {
+    transform: scale(1.15);
+}
+
+.star-rating-input .star-btn.active {
+    color: #f5c518;
+}
+
+.star-rating-input .star-btn.hover {
+    color: #f5c518;
+}
+
+/* ===== Image Upload Area ===== */
+.image-upload-area {
+    border: 2px dashed #0f3460;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    color: #556;
+    font-size: 14px;
+}
+
+.image-upload-area:hover,
+.image-upload-area.dragover {
+    border-color: #e94560;
+    background: rgba(233, 69, 96, 0.05);
+}
+
+.image-upload-area .upload-icon {
+    font-size: 36px;
+    margin-bottom: 8px;
+    color: #444;
+}
+
+.image-upload-area p {
+    margin-bottom: 4px;
+}
+
+.image-upload-area .hint {
+    font-size: 12px;
+    color: #444;
+}
+
+.image-preview-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.image-preview-item {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #0f3460;
+}
+
+.image-preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-preview-item .remove-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    background: rgba(233, 69, 96, 0.9);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+/* ===== Excel Upload ===== */
+.excel-drop-zone {
+    border: 2px dashed #0f3460;
+    border-radius: 12px;
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    color: #556;
+    margin-bottom: 16px;
+}
+
+.excel-drop-zone:hover,
+.excel-drop-zone.dragover {
+    border-color: #4caf50;
+    background: rgba(76, 175, 80, 0.05);
+}
+
+.excel-drop-zone .drop-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    color: #444;
+}
+
+.excel-file-name {
+    margin-top: 12px;
+    font-size: 14px;
+    color: #7ec8e3;
+    word-break: break-all;
+}
+
+.excel-results {
+    margin-top: 16px;
+    padding: 16px;
+    background: #1a1a2e;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.excel-results .result-success {
+    color: #4caf50;
+    font-weight: 500;
+}
+
+.excel-results .result-fail {
+    color: #e94560;
+    font-weight: 500;
+}
+
+.excel-results .error-list {
+    margin-top: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.excel-results .error-item {
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(15, 52, 96, 0.3);
+    color: #999;
+    font-size: 12px;
+}
+
+.template-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #7ec8e3;
+    font-size: 13px;
+    text-decoration: none;
+    margin-bottom: 20px;
+}
+
+.template-link:hover {
+    color: #a5d8f0;
+    text-decoration: underline;
+}
+
+/* ===== Embed Code Modal ===== */
+.embed-code-block {
+    background: #1a1a2e;
+    border: 1px solid #0f3460;
+    border-radius: 8px;
+    padding: 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #7ec8e3;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.embed-note {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: rgba(245, 197, 24, 0.08);
+    border: 1px solid rgba(245, 197, 24, 0.2);
+    border-radius: 8px;
+    font-size: 13px;
+    color: #cba717;
+    line-height: 1.6;
+}
+
+/* ===== Spinner ===== */
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+.spinner-lg {
+    width: 32px;
+    height: 32px;
+    border-width: 3px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 40px;
+    color: #556;
+    font-size: 14px;
+}
+
+/* ===== Toast ===== */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.toast {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #fff;
+    min-width: 260px;
+    max-width: 400px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    animation: toastIn 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toast.success {
+    background: #2e7d32;
+    border: 1px solid #4caf50;
+}
+
+.toast.error {
+    background: #c62828;
+    border: 1px solid #e94560;
+}
+
+.toast.fade-out {
+    animation: toastOut 0.3s ease forwards;
+}
+
+@keyframes toastIn {
+    from { opacity: 0; transform: translateX(40px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toastOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(40px); }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    .container {
+        padding: 16px;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .stat-card {
+        padding: 14px 16px;
+    }
+
+    .stat-card .stat-value {
+        font-size: 22px;
+    }
+
+    .toolbar {
+        padding: 12px 14px;
+    }
+
+    .toolbar .search-group {
+        min-width: 100%;
+    }
+
+    .product-filter {
+        width: 100%;
+    }
+
+    .btn {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .header {
+        padding: 14px 16px;
+    }
+
+    .header h1 {
+        font-size: 18px;
+    }
+
+    .modal {
+        margin: 10px;
+    }
+
+    .modal-overlay {
+        padding: 20px 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+    <h1>스태프 리뷰 관리</h1>
+    <span class="header-badge">Staff Review Admin</span>
+</header>
+
+<!-- Main Container -->
+<div class="container">
+
+    <!-- Stats Cards -->
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="stat-label">전체 리뷰</div>
+            <div class="stat-value" id="statTotal">-</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">노출 중</div>
+            <div class="stat-value" id="statVisible">-</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">평균 별점</div>
+            <div class="stat-value" id="statRating">-</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">등록 상품</div>
+            <div class="stat-value" id="statProducts">-</div>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+        <div class="search-group">
+            <span class="search-icon">&#128269;</span>
+            <input type="text" id="searchInput" placeholder="작성자, 제목, 내용 검색...">
+        </div>
+        <div class="product-filter">
+            <input type="text" id="productFilter" class="no-icon" placeholder="상품번호 필터" style="padding-left:12px;">
+        </div>
+        <button class="btn btn-primary" onclick="openCreateModal()">+ 리뷰 작성</button>
+        <button class="btn btn-secondary" onclick="openExcelModal()">엑셀 업로드</button>
+        <button class="btn btn-secondary" onclick="openEmbedModal()">임베드 코드</button>
+    </div>
+
+    <!-- Review Table -->
+    <div class="table-wrapper">
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>상품번호</th>
+                        <th>상품명</th>
+                        <th>작성자</th>
+                        <th>별점</th>
+                        <th>제목</th>
+                        <th>등록일</th>
+                        <th>노출</th>
+                        <th>삭제</th>
+                    </tr>
+                </thead>
+                <tbody id="reviewTableBody">
+                    <tr>
+                        <td colspan="9">
+                            <div class="loading-overlay">
+                                <div class="spinner spinner-lg"></div>
+                                <span>리뷰를 불러오는 중...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination" id="pagination"></div>
+    </div>
+</div>
+
+<!-- Review Create/Edit Modal -->
+<div class="modal-overlay" id="reviewModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="reviewModalTitle">리뷰 작성</h2>
+            <button class="modal-close" onclick="closeReviewModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="editReviewId">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>상품번호 <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="formProductNo" placeholder="예: 123">
+                </div>
+                <div class="form-group">
+                    <label>상품명</label>
+                    <input type="text" class="form-input" id="formProductName" placeholder="예: 코튼 티셔츠">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>작성자명 <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="formAuthor" placeholder="예: 스태프 김">
+                </div>
+                <div class="form-group">
+                    <label>별점 <span class="required">*</span></label>
+                    <div class="star-rating-input" id="starRatingInput">
+                        <button type="button" class="star-btn" data-value="1">&#9733;</button>
+                        <button type="button" class="star-btn" data-value="2">&#9733;</button>
+                        <button type="button" class="star-btn" data-value="3">&#9733;</button>
+                        <button type="button" class="star-btn" data-value="4">&#9733;</button>
+                        <button type="button" class="star-btn" data-value="5">&#9733;</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>리뷰 제목</label>
+                <input type="text" class="form-input" id="formTitle" placeholder="리뷰 제목 (선택)">
+            </div>
+            <div class="form-group">
+                <label>리뷰 내용 <span class="required">*</span></label>
+                <textarea class="form-input" id="formContent" placeholder="리뷰 내용을 입력하세요..."></textarea>
+            </div>
+
+            <!-- Existing Images (edit mode) -->
+            <div class="form-group" id="existingImagesGroup" style="display:none;">
+                <label>등록된 이미지</label>
+                <div class="image-preview-grid" id="existingImages"></div>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="form-group">
+                <label>이미지 업로드</label>
+                <div class="image-upload-area" id="imageUploadArea">
+                    <div class="upload-icon">&#128247;</div>
+                    <p>이미지를 드래그하여 놓거나 클릭하여 선택</p>
+                    <p class="hint">JPG, PNG, GIF / 최대 10MB / 최대 5장</p>
+                </div>
+                <input type="file" id="imageFileInput" accept="image/*" multiple style="display:none;">
+                <div class="image-preview-grid" id="newImagePreviews"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeReviewModal()">취소</button>
+            <button class="btn btn-primary" id="saveReviewBtn" onclick="saveReview()">저장</button>
+        </div>
+    </div>
+</div>
+
+<!-- Excel Upload Modal -->
+<div class="modal-overlay" id="excelModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>엑셀 일괄 업로드</h2>
+            <button class="modal-close" onclick="closeExcelModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <a href="/api/reviews/excel-template" class="template-link" download>
+                &#128196; 엑셀 템플릿 다운로드 (.xlsx)
+            </a>
+            <div class="excel-drop-zone" id="excelDropZone">
+                <div class="drop-icon">&#128196;</div>
+                <p>엑셀 파일(.xlsx)을 드래그하거나 클릭하여 선택</p>
+                <div class="excel-file-name" id="excelFileName" style="display:none;"></div>
+            </div>
+            <input type="file" id="excelFileInput" accept=".xlsx" style="display:none;">
+            <div id="excelResults" style="display:none;"></div>
+            <div id="excelLoading" class="loading-overlay" style="display:none;">
+                <div class="spinner spinner-lg"></div>
+                <span>업로드 중...</span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeExcelModal()">닫기</button>
+            <button class="btn btn-primary" id="excelUploadBtn" onclick="uploadExcel()" disabled>업로드</button>
+        </div>
+    </div>
+</div>
+
+<!-- Embed Code Modal -->
+<div class="modal-overlay" id="embedModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>위젯 임베드 코드</h2>
+            <button class="modal-close" onclick="closeEmbedModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p style="font-size:14px; color:#8899aa; margin-bottom:16px;">
+                아래 코드를 카페24 상품 상세 페이지의 원하는 위치에 붙여넣으세요.
+            </p>
+            <div class="embed-code-block" id="embedCodeBlock"></div>
+            <div class="embed-note">
+                <strong>참고:</strong> <code>{$product_no}</code>는 카페24의 상품번호 치환코드입니다.
+                카페24 상품 상세 페이지에 삽입하면 해당 상품번호로 자동 치환됩니다.
+                위젯은 상품별 스태프 리뷰를 표시합니다.
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeEmbedModal()">닫기</button>
+            <button class="btn btn-primary" onclick="copyEmbedCode()">복사하기</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ===================================================================
+   스태프 리뷰 관리 대시보드 - JavaScript
+   =================================================================== */
+
+// ---------------------------------------------------------------------------
+// 상태 관리
+// ---------------------------------------------------------------------------
+const state = {
+    reviews: [],
+    stats: { total_reviews: 0, visible_reviews: 0, average_rating: 0, total_products: 0 },
+    page: 1,
+    perPage: 20,
+    search: '',
+    productNo: '',
+    selectedRating: 0,
+    pendingImages: [],    // 새로 추가할 File 객체 배열
+    editingReviewId: null // 수정 모드일 때 리뷰 ID
+};
+
+// ---------------------------------------------------------------------------
+// API 호출 헬퍼
+// ---------------------------------------------------------------------------
+async function api(url, options = {}) {
+    try {
+        const res = await fetch(url, options);
+        if (!res.ok) {
+            const err = await res.json().catch(function() { return { detail: '요청에 실패했습니다.' }; });
+            throw new Error(err.detail || '요청에 실패했습니다.');
+        }
+        // DELETE 등 빈 응답 처리
+        const text = await res.text();
+        return text ? JSON.parse(text) : null;
+    } catch (e) {
+        throw e;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 통계 로드
+// ---------------------------------------------------------------------------
+async function loadStats() {
+    try {
+        const data = await api('/api/stats');
+        state.stats = data;
+        renderStats();
+    } catch (e) {
+        console.error('통계 로드 실패:', e);
+    }
+}
+
+function renderStats() {
+    var s = state.stats;
+    document.getElementById('statTotal').textContent = s.total_reviews.toLocaleString();
+    document.getElementById('statVisible').textContent = s.visible_reviews.toLocaleString();
+    document.getElementById('statRating').innerHTML = '<span class="star">\u2605</span> ' + s.average_rating.toFixed(1);
+    document.getElementById('statProducts').textContent = s.total_products.toLocaleString();
+}
+
+// ---------------------------------------------------------------------------
+// 리뷰 목록 로드
+// ---------------------------------------------------------------------------
+async function loadReviews() {
+    try {
+        var params = new URLSearchParams();
+        params.set('page', state.page);
+        params.set('per_page', state.perPage);
+        if (state.search) params.set('search', state.search);
+        if (state.productNo) params.set('product_no', state.productNo);
+
+        var data = await api('/api/reviews?' + params.toString());
+        state.reviews = data.items;
+        renderReviews(data);
+        renderPagination(data);
+    } catch (e) {
+        console.error('리뷰 로드 실패:', e);
+        document.getElementById('reviewTableBody').innerHTML =
+            '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">&#9888;</div><p>리뷰를 불러올 수 없습니다.</p></div></td></tr>';
+    }
+}
+
+function renderStars(rating) {
+    var stars = '';
+    for (var i = 1; i <= 5; i++) {
+        stars += i <= rating ? '\u2605' : '\u2606';
+    }
+    return stars;
+}
+
+function formatDate(dateStr) {
+    if (!dateStr) return '-';
+    var d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr.substring(0, 10);
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    var div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+function renderReviews(data) {
+    var tbody = document.getElementById('reviewTableBody');
+
+    if (!data.items || data.items.length === 0) {
+        tbody.innerHTML =
+            '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">&#128196;</div><p>등록된 리뷰가 없습니다.</p></div></td></tr>';
+        return;
+    }
+
+    var html = '';
+    for (var i = 0; i < data.items.length; i++) {
+        var r = data.items[i];
+        html += '<tr onclick="openEditModal(' + r.id + ')" data-id="' + r.id + '">';
+        html += '<td>' + r.id + '</td>';
+        html += '<td>' + escapeHtml(r.product_no) + '</td>';
+        html += '<td><div class="title-cell">' + escapeHtml(r.product_name || '-') + '</div></td>';
+        html += '<td>' + escapeHtml(r.author) + '</td>';
+        html += '<td><span class="stars">' + renderStars(r.rating) + '</span></td>';
+        html += '<td><div class="title-cell">' + escapeHtml(r.title || '-') + '</div></td>';
+        html += '<td>' + formatDate(r.created_at) + '</td>';
+        html += '<td onclick="event.stopPropagation();">';
+        html += '<label class="toggle">';
+        html += '<input type="checkbox" ' + (r.is_visible ? 'checked' : '') + ' onchange="toggleVisibility(' + r.id + ', this.checked)">';
+        html += '<span class="toggle-slider"></span>';
+        html += '</label>';
+        html += '</td>';
+        html += '<td onclick="event.stopPropagation();">';
+        html += '<button class="btn btn-danger btn-sm" onclick="deleteReview(' + r.id + ')">삭제</button>';
+        html += '</td>';
+        html += '</tr>';
+    }
+    tbody.innerHTML = html;
+}
+
+function renderPagination(data) {
+    var container = document.getElementById('pagination');
+    var totalPages = Math.ceil(data.total / data.per_page);
+
+    if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+    }
+
+    var html = '';
+
+    // Prev button
+    html += '<button ' + (data.page <= 1 ? 'disabled' : '') + ' onclick="goToPage(' + (data.page - 1) + ')">&laquo; 이전</button>';
+
+    // Page numbers
+    var startPage = Math.max(1, data.page - 2);
+    var endPage = Math.min(totalPages, data.page + 2);
+
+    if (startPage > 1) {
+        html += '<button onclick="goToPage(1)">1</button>';
+        if (startPage > 2) {
+            html += '<span class="page-info">...</span>';
+        }
+    }
+
+    for (var p = startPage; p <= endPage; p++) {
+        html += '<button class="' + (p === data.page ? 'active' : '') + '" onclick="goToPage(' + p + ')">' + p + '</button>';
+    }
+
+    if (endPage < totalPages) {
+        if (endPage < totalPages - 1) {
+            html += '<span class="page-info">...</span>';
+        }
+        html += '<button onclick="goToPage(' + totalPages + ')">' + totalPages + '</button>';
+    }
+
+    // Next button
+    html += '<button ' + (data.page >= totalPages ? 'disabled' : '') + ' onclick="goToPage(' + (data.page + 1) + ')">다음 &raquo;</button>';
+
+    container.innerHTML = html;
+}
+
+function goToPage(page) {
+    state.page = page;
+    loadReviews();
+}
+
+// ---------------------------------------------------------------------------
+// 노출/숨김 토글
+// ---------------------------------------------------------------------------
+async function toggleVisibility(reviewId, isVisible) {
+    try {
+        await api('/api/reviews/' + reviewId + '/visibility', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ is_visible: isVisible })
+        });
+        showToast(isVisible ? '리뷰가 노출 상태로 변경되었습니다.' : '리뷰가 숨김 처리되었습니다.', 'success');
+        loadStats();
+    } catch (e) {
+        showToast('상태 변경에 실패했습니다: ' + e.message, 'error');
+        loadReviews(); // 원복
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 리뷰 삭제
+// ---------------------------------------------------------------------------
+async function deleteReview(reviewId) {
+    if (!confirm('이 리뷰를 삭제하시겠습니까?\n삭제된 리뷰는 복구할 수 없습니다.')) return;
+
+    try {
+        await api('/api/reviews/' + reviewId, { method: 'DELETE' });
+        showToast('리뷰가 삭제되었습니다.', 'success');
+        loadStats();
+        loadReviews();
+    } catch (e) {
+        showToast('삭제에 실패했습니다: ' + e.message, 'error');
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 리뷰 작성 모달
+// ---------------------------------------------------------------------------
+function openCreateModal() {
+    state.editingReviewId = null;
+    state.pendingImages = [];
+    document.getElementById('reviewModalTitle').textContent = '리뷰 작성';
+    document.getElementById('editReviewId').value = '';
+    document.getElementById('formProductNo').value = '';
+    document.getElementById('formProductName').value = '';
+    document.getElementById('formAuthor').value = '';
+    document.getElementById('formTitle').value = '';
+    document.getElementById('formContent').value = '';
+    setStarRating(0);
+    document.getElementById('existingImagesGroup').style.display = 'none';
+    document.getElementById('existingImages').innerHTML = '';
+    document.getElementById('newImagePreviews').innerHTML = '';
+    document.getElementById('saveReviewBtn').textContent = '저장';
+    document.getElementById('saveReviewBtn').disabled = false;
+    document.getElementById('reviewModal').classList.add('active');
+}
+
+// ---------------------------------------------------------------------------
+// 리뷰 수정 모달
+// ---------------------------------------------------------------------------
+async function openEditModal(reviewId) {
+    try {
+        var review = await api('/api/reviews/' + reviewId);
+        state.editingReviewId = reviewId;
+        state.pendingImages = [];
+
+        document.getElementById('reviewModalTitle').textContent = '리뷰 수정';
+        document.getElementById('editReviewId').value = reviewId;
+        document.getElementById('formProductNo').value = review.product_no;
+        document.getElementById('formProductName').value = review.product_name || '';
+        document.getElementById('formAuthor').value = review.author;
+        document.getElementById('formTitle').value = review.title || '';
+        document.getElementById('formContent').value = review.content;
+        setStarRating(review.rating);
+        document.getElementById('newImagePreviews').innerHTML = '';
+
+        // 기존 이미지 표시
+        var existingGroup = document.getElementById('existingImagesGroup');
+        var existingContainer = document.getElementById('existingImages');
+        if (review.images && review.images.length > 0) {
+            existingGroup.style.display = 'block';
+            var imgHtml = '';
+            for (var i = 0; i < review.images.length; i++) {
+                var img = review.images[i];
+                imgHtml += '<div class="image-preview-item" id="existImg-' + img.id + '">';
+                imgHtml += '<img src="/uploads/' + escapeHtml(img.file_path) + '" alt="' + escapeHtml(img.original_name) + '">';
+                imgHtml += '<button class="remove-btn" onclick="deleteExistingImage(' + img.id + ')" title="삭제">&times;</button>';
+                imgHtml += '</div>';
+            }
+            existingContainer.innerHTML = imgHtml;
+        } else {
+            existingGroup.style.display = 'none';
+            existingContainer.innerHTML = '';
+        }
+
+        document.getElementById('saveReviewBtn').textContent = '수정';
+        document.getElementById('saveReviewBtn').disabled = false;
+        document.getElementById('reviewModal').classList.add('active');
+    } catch (e) {
+        showToast('리뷰를 불러올 수 없습니다: ' + e.message, 'error');
+    }
+}
+
+function closeReviewModal() {
+    document.getElementById('reviewModal').classList.remove('active');
+    state.editingReviewId = null;
+    state.pendingImages = [];
+}
+
+// ---------------------------------------------------------------------------
+// 별점 입력
+// ---------------------------------------------------------------------------
+function setStarRating(value) {
+    state.selectedRating = value;
+    var buttons = document.querySelectorAll('#starRatingInput .star-btn');
+    for (var i = 0; i < buttons.length; i++) {
+        var btnVal = parseInt(buttons[i].getAttribute('data-value'));
+        if (btnVal <= value) {
+            buttons[i].classList.add('active');
+        } else {
+            buttons[i].classList.remove('active');
+        }
+    }
+}
+
+// 별점 클릭 이벤트
+(function() {
+    var container = document.getElementById('starRatingInput');
+    var buttons = container.querySelectorAll('.star-btn');
+
+    for (var i = 0; i < buttons.length; i++) {
+        buttons[i].addEventListener('click', function() {
+            setStarRating(parseInt(this.getAttribute('data-value')));
+        });
+
+        buttons[i].addEventListener('mouseenter', function() {
+            var hoverVal = parseInt(this.getAttribute('data-value'));
+            for (var j = 0; j < buttons.length; j++) {
+                var bv = parseInt(buttons[j].getAttribute('data-value'));
+                if (bv <= hoverVal) {
+                    buttons[j].classList.add('hover');
+                } else {
+                    buttons[j].classList.remove('hover');
+                }
+            }
+        });
+
+        buttons[i].addEventListener('mouseleave', function() {
+            for (var j = 0; j < buttons.length; j++) {
+                buttons[j].classList.remove('hover');
+            }
+        });
+    }
+})();
+
+// ---------------------------------------------------------------------------
+// 이미지 업로드 영역 (드래그앤드롭 + 클릭)
+// ---------------------------------------------------------------------------
+(function() {
+    var area = document.getElementById('imageUploadArea');
+    var input = document.getElementById('imageFileInput');
+
+    area.addEventListener('click', function() {
+        input.click();
+    });
+
+    area.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        area.classList.add('dragover');
+    });
+
+    area.addEventListener('dragleave', function() {
+        area.classList.remove('dragover');
+    });
+
+    area.addEventListener('drop', function(e) {
+        e.preventDefault();
+        area.classList.remove('dragover');
+        handleImageFiles(e.dataTransfer.files);
+    });
+
+    input.addEventListener('change', function() {
+        handleImageFiles(this.files);
+        this.value = '';
+    });
+})();
+
+function handleImageFiles(fileList) {
+    for (var i = 0; i < fileList.length; i++) {
+        var file = fileList[i];
+        if (!file.type.startsWith('image/')) {
+            showToast('이미지 파일만 업로드할 수 있습니다.', 'error');
+            continue;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            showToast(file.name + ': 파일 크기가 10MB를 초과합니다.', 'error');
+            continue;
+        }
+        if (state.pendingImages.length >= 5) {
+            showToast('이미지는 최대 5장까지 업로드할 수 있습니다.', 'error');
+            break;
+        }
+        state.pendingImages.push(file);
+    }
+    renderNewImagePreviews();
+}
+
+function renderNewImagePreviews() {
+    var container = document.getElementById('newImagePreviews');
+    container.innerHTML = '';
+
+    for (var i = 0; i < state.pendingImages.length; i++) {
+        (function(index) {
+            var file = state.pendingImages[index];
+            var item = document.createElement('div');
+            item.className = 'image-preview-item';
+
+            var img = document.createElement('img');
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            item.appendChild(img);
+
+            var removeBtn = document.createElement('button');
+            removeBtn.className = 'remove-btn';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.onclick = function(e) {
+                e.stopPropagation();
+                state.pendingImages.splice(index, 1);
+                renderNewImagePreviews();
+            };
+            item.appendChild(removeBtn);
+            container.appendChild(item);
+        })(i);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 기존 이미지 삭제 (수정 모드)
+// ---------------------------------------------------------------------------
+async function deleteExistingImage(imageId) {
+    if (!confirm('이 이미지를 삭제하시겠습니까?')) return;
+
+    try {
+        await api('/api/images/' + imageId, { method: 'DELETE' });
+        var el = document.getElementById('existImg-' + imageId);
+        if (el) el.remove();
+
+        // 남은 이미지가 없으면 섹션 숨김
+        var remaining = document.querySelectorAll('#existingImages .image-preview-item');
+        if (remaining.length === 0) {
+            document.getElementById('existingImagesGroup').style.display = 'none';
+        }
+
+        showToast('이미지가 삭제되었습니다.', 'success');
+    } catch (e) {
+        showToast('이미지 삭제에 실패했습니다: ' + e.message, 'error');
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 리뷰 저장 (작성/수정)
+// ---------------------------------------------------------------------------
+async function saveReview() {
+    var productNo = document.getElementById('formProductNo').value.trim();
+    var productName = document.getElementById('formProductName').value.trim();
+    var author = document.getElementById('formAuthor').value.trim();
+    var rating = state.selectedRating;
+    var title = document.getElementById('formTitle').value.trim();
+    var content = document.getElementById('formContent').value.trim();
+
+    // 유효성 검사
+    if (!productNo) { showToast('상품번호를 입력하세요.', 'error'); return; }
+    if (!author) { showToast('작성자명을 입력하세요.', 'error'); return; }
+    if (!rating) { showToast('별점을 선택하세요.', 'error'); return; }
+    if (!content) { showToast('리뷰 내용을 입력하세요.', 'error'); return; }
+
+    var saveBtn = document.getElementById('saveReviewBtn');
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<span class="spinner"></span>';
+
+    try {
+        var body = {
+            product_no: productNo,
+            product_name: productName,
+            author: author,
+            rating: rating,
+            title: title,
+            content: content
+        };
+
+        var review;
+        if (state.editingReviewId) {
+            // 수정
+            review = await api('/api/reviews/' + state.editingReviewId, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+        } else {
+            // 작성
+            review = await api('/api/reviews', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+        }
+
+        // 이미지 업로드
+        if (state.pendingImages.length > 0) {
+            var formData = new FormData();
+            for (var i = 0; i < state.pendingImages.length; i++) {
+                formData.append('files', state.pendingImages[i]);
+            }
+            await api('/api/reviews/' + review.id + '/images', {
+                method: 'POST',
+                body: formData
+            });
+        }
+
+        showToast(state.editingReviewId ? '리뷰가 수정되었습니다.' : '리뷰가 작성되었습니다.', 'success');
+        closeReviewModal();
+        loadStats();
+        loadReviews();
+    } catch (e) {
+        showToast('저장에 실패했습니다: ' + e.message, 'error');
+        saveBtn.disabled = false;
+        saveBtn.textContent = state.editingReviewId ? '수정' : '저장';
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 엑셀 업로드
+// ---------------------------------------------------------------------------
+var excelFile = null;
+
+function openExcelModal() {
+    excelFile = null;
+    document.getElementById('excelFileName').style.display = 'none';
+    document.getElementById('excelFileName').textContent = '';
+    document.getElementById('excelResults').style.display = 'none';
+    document.getElementById('excelResults').innerHTML = '';
+    document.getElementById('excelLoading').style.display = 'none';
+    document.getElementById('excelUploadBtn').disabled = true;
+    document.getElementById('excelModal').classList.add('active');
+}
+
+function closeExcelModal() {
+    document.getElementById('excelModal').classList.remove('active');
+    excelFile = null;
+}
+
+(function() {
+    var zone = document.getElementById('excelDropZone');
+    var input = document.getElementById('excelFileInput');
+
+    zone.addEventListener('click', function() {
+        input.click();
+    });
+
+    zone.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        zone.classList.add('dragover');
+    });
+
+    zone.addEventListener('dragleave', function() {
+        zone.classList.remove('dragover');
+    });
+
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        if (e.dataTransfer.files.length > 0) {
+            handleExcelFile(e.dataTransfer.files[0]);
+        }
+    });
+
+    input.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            handleExcelFile(this.files[0]);
+        }
+        this.value = '';
+    });
+})();
+
+function handleExcelFile(file) {
+    if (!file.name.endsWith('.xlsx')) {
+        showToast('.xlsx 파일만 업로드할 수 있습니다.', 'error');
+        return;
+    }
+    excelFile = file;
+    var nameEl = document.getElementById('excelFileName');
+    nameEl.textContent = file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+    nameEl.style.display = 'block';
+    document.getElementById('excelUploadBtn').disabled = false;
+    document.getElementById('excelResults').style.display = 'none';
+}
+
+async function uploadExcel() {
+    if (!excelFile) return;
+
+    var uploadBtn = document.getElementById('excelUploadBtn');
+    uploadBtn.disabled = true;
+    document.getElementById('excelLoading').style.display = 'flex';
+    document.getElementById('excelResults').style.display = 'none';
+
+    try {
+        var formData = new FormData();
+        formData.append('file', excelFile);
+
+        var result = await api('/api/reviews/excel-upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        // 결과 표시
+        var resultsEl = document.getElementById('excelResults');
+        var html = '<div class="excel-results">';
+        html += '<p><span class="result-success">성공: ' + result.success_count + '건</span>';
+        if (result.fail_count > 0) {
+            html += ' / <span class="result-fail">실패: ' + result.fail_count + '건</span>';
+        }
+        html += '</p>';
+
+        if (result.errors && result.errors.length > 0) {
+            html += '<div class="error-list">';
+            for (var i = 0; i < result.errors.length; i++) {
+                html += '<div class="error-item">' + result.errors[i].row + '행: ' + escapeHtml(result.errors[i].message) + '</div>';
+            }
+            html += '</div>';
+        }
+
+        html += '</div>';
+        resultsEl.innerHTML = html;
+        resultsEl.style.display = 'block';
+
+        if (result.success_count > 0) {
+            showToast(result.success_count + '건의 리뷰가 등록되었습니다.', 'success');
+            loadStats();
+            loadReviews();
+        }
+    } catch (e) {
+        showToast('엑셀 업로드에 실패했습니다: ' + e.message, 'error');
+    } finally {
+        document.getElementById('excelLoading').style.display = 'none';
+        uploadBtn.disabled = false;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 임베드 코드 모달
+// ---------------------------------------------------------------------------
+function openEmbedModal() {
+    var serverUrl = window.location.origin;
+    var code = '<div id="staff-review-widget"></div>\n';
+    code += '<link rel="stylesheet" href="' + serverUrl + '/static/widget.css">\n';
+    code += '<script src="' + serverUrl + '/static/widget.js" data-server="' + serverUrl + '" data-product-no="{$product_no}"><\/script>';
+    document.getElementById('embedCodeBlock').textContent = code;
+    document.getElementById('embedModal').classList.add('active');
+}
+
+function closeEmbedModal() {
+    document.getElementById('embedModal').classList.remove('active');
+}
+
+async function copyEmbedCode() {
+    var code = document.getElementById('embedCodeBlock').textContent;
+    try {
+        await navigator.clipboard.writeText(code);
+        showToast('임베드 코드가 클립보드에 복사되었습니다.', 'success');
+    } catch (e) {
+        // 폴백: textarea 선택 방식
+        var ta = document.createElement('textarea');
+        ta.value = code;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+            document.execCommand('copy');
+            showToast('임베드 코드가 클립보드에 복사되었습니다.', 'success');
+        } catch (err) {
+            showToast('복사에 실패했습니다. 코드를 직접 선택하여 복사하세요.', 'error');
+        }
+        document.body.removeChild(ta);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 토스트 알림
+// ---------------------------------------------------------------------------
+function showToast(message, type) {
+    var container = document.getElementById('toastContainer');
+    var toast = document.createElement('div');
+    toast.className = 'toast ' + (type || 'success');
+
+    var icon = type === 'error' ? '\u2716' : '\u2714';
+    toast.innerHTML = '<span>' + icon + '</span><span>' + escapeHtml(message) + '</span>';
+    container.appendChild(toast);
+
+    // 3초 후 자동 제거
+    setTimeout(function() {
+        toast.classList.add('fade-out');
+        setTimeout(function() {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// ---------------------------------------------------------------------------
+// 검색 디바운스
+// ---------------------------------------------------------------------------
+var searchTimer = null;
+
+document.getElementById('searchInput').addEventListener('input', function() {
+    var val = this.value;
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function() {
+        state.search = val.trim();
+        state.page = 1;
+        loadReviews();
+    }, 300);
+});
+
+document.getElementById('productFilter').addEventListener('input', function() {
+    var val = this.value;
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function() {
+        state.productNo = val.trim();
+        state.page = 1;
+        loadReviews();
+    }, 300);
+});
+
+// ---------------------------------------------------------------------------
+// 모달 오버레이 클릭으로 닫기
+// ---------------------------------------------------------------------------
+document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            overlay.classList.remove('active');
+            // 상태 초기화
+            if (overlay.id === 'reviewModal') {
+                state.editingReviewId = null;
+                state.pendingImages = [];
+            }
+            if (overlay.id === 'excelModal') {
+                excelFile = null;
+            }
+        }
+    });
+});
+
+// ---------------------------------------------------------------------------
+// 키보드 ESC로 모달 닫기
+// ---------------------------------------------------------------------------
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        var modals = document.querySelectorAll('.modal-overlay.active');
+        modals.forEach(function(m) {
+            m.classList.remove('active');
+        });
+        state.editingReviewId = null;
+        state.pendingImages = [];
+        excelFile = null;
+    }
+});
+
+// ---------------------------------------------------------------------------
+// 초기 로드
+// ---------------------------------------------------------------------------
+document.addEventListener('DOMContentLoaded', function() {
+    loadStats();
+    loadReviews();
+});
+</script>
+</body>
+</html>
