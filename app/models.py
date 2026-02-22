@@ -98,6 +98,15 @@ class ProductCreate(BaseModel):
 
 # --- Widget ---
 
+
+class RatingDistribution(BaseModel):
+    star_5: int = 0
+    star_4: int = 0
+    star_3: int = 0
+    star_2: int = 0
+    star_1: int = 0
+
+
 class WidgetReviewResponse(BaseModel):
     items: list[ReviewResponse]
     total: int
@@ -105,3 +114,6 @@ class WidgetReviewResponse(BaseModel):
     per_page: int
     average_rating: float
     total_reviews: int
+    rating_distribution: RatingDistribution
+    photo_review_count: int
+    all_photo_urls: list[str]
