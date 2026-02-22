@@ -786,6 +786,165 @@ textarea.form-input {
     to { opacity: 0; transform: translateX(40px); }
 }
 
+/* ===== Autocomplete Dropdown ===== */
+.autocomplete-wrapper {
+    position: relative;
+}
+
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #1a1a2e;
+    border: 1px solid #0f3460;
+    border-radius: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    margin-top: 4px;
+    display: none;
+}
+
+.autocomplete-dropdown.visible {
+    display: block;
+}
+
+.autocomplete-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-bottom: 1px solid #0f3460;
+    transition: background 0.12s;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover {
+    background: #0f3460;
+}
+
+.autocomplete-item .product-no {
+    font-weight: bold;
+    color: #e94560;
+}
+
+.autocomplete-item .product-name {
+    color: #aaa;
+    font-size: 13px;
+    margin-left: 8px;
+}
+
+.autocomplete-no-results {
+    padding: 10px 12px;
+    color: #556;
+    font-size: 13px;
+    text-align: center;
+}
+
+/* ===== Product Management Modal ===== */
+.product-list-search {
+    margin-bottom: 16px;
+}
+
+.product-list-search input {
+    width: 100%;
+    padding: 10px 14px;
+    background: #1a1a2e;
+    border: 1px solid #0f3460;
+    border-radius: 8px;
+    color: #eee;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.product-list-search input:focus {
+    border-color: #e94560;
+}
+
+.product-add-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    align-items: flex-end;
+}
+
+.product-add-form .form-group {
+    margin-bottom: 0;
+    flex: 1;
+}
+
+.product-add-form .btn {
+    flex-shrink: 0;
+    height: 40px;
+}
+
+.product-list-table {
+    max-height: 320px;
+    overflow-y: auto;
+    border: 1px solid #0f3460;
+    border-radius: 8px;
+}
+
+.product-list-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.product-list-table thead th {
+    position: sticky;
+    top: 0;
+    background: #0f3460;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 500;
+    color: #8899aa;
+    white-space: nowrap;
+    z-index: 1;
+}
+
+.product-list-table tbody td {
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #ccc;
+    border-bottom: 1px solid rgba(15, 52, 96, 0.5);
+}
+
+.product-list-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.product-list-table tbody tr:hover {
+    background: rgba(15, 52, 96, 0.3);
+}
+
+.product-list-empty {
+    padding: 30px;
+    text-align: center;
+    color: #556;
+    font-size: 14px;
+}
+
+.product-delete-btn {
+    background: transparent;
+    border: none;
+    color: #e94560;
+    cursor: pointer;
+    font-size: 13px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    transition: background 0.15s;
+    font-family: inherit;
+}
+
+.product-delete-btn:hover {
+    background: rgba(233, 69, 96, 0.1);
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
     .container {
@@ -892,6 +1051,7 @@ textarea.form-input {
         </div>
         <button class="btn btn-primary" onclick="openCreateModal()">+ 리뷰 작성</button>
         <button class="btn btn-secondary" onclick="openExcelModal()">엑셀 업로드</button>
+        <button class="btn btn-secondary" onclick="openProductsModal()">상품 관리</button>
         <button class="btn btn-secondary" onclick="openEmbedModal()">임베드 코드</button>
     </div>
 
@@ -940,7 +1100,10 @@ textarea.form-input {
             <div class="form-row">
                 <div class="form-group">
                     <label>상품번호 <span class="required">*</span></label>
-                    <input type="text" class="form-input" id="formProductNo" placeholder="예: 123">
+                    <div class="autocomplete-wrapper" id="productNoAutocomplete">
+                        <input type="text" class="form-input" id="formProductNo" placeholder="예: 123" autocomplete="off">
+                        <div class="autocomplete-dropdown" id="productNoDropdown"></div>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label>상품명</label>
@@ -1048,6 +1211,54 @@ textarea.form-input {
         <div class="modal-footer">
             <button class="btn btn-secondary" onclick="closeEmbedModal()">닫기</button>
             <button class="btn btn-primary" onclick="copyEmbedCode()">복사하기</button>
+        </div>
+    </div>
+</div>
+
+<!-- Product Management Modal -->
+<div class="modal-overlay" id="productsModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2>상품 관리</h2>
+            <button class="modal-close" onclick="closeProductsModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <!-- 상품 추가 폼 -->
+            <div class="product-add-form">
+                <div class="form-group">
+                    <label>상품번호 <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="addProductNo" placeholder="예: 123">
+                </div>
+                <div class="form-group">
+                    <label>상품명 <span class="required">*</span></label>
+                    <input type="text" class="form-input" id="addProductName" placeholder="예: 코튼 티셔츠">
+                </div>
+                <button class="btn btn-primary" onclick="addProduct()">추가</button>
+            </div>
+
+            <!-- 상품 검색 -->
+            <div class="product-list-search">
+                <input type="text" id="productListSearch" placeholder="상품번호 또는 상품명으로 검색...">
+            </div>
+
+            <!-- 상품 목록 -->
+            <div class="product-list-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>상품번호</th>
+                            <th>상품명</th>
+                            <th>삭제</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productListBody">
+                        <tr><td colspan="3" class="product-list-empty">상품을 불러오는 중...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeProductsModal()">닫기</button>
         </div>
     </div>
 </div>
@@ -1348,6 +1559,7 @@ function closeReviewModal() {
     document.getElementById('reviewModal').classList.remove('active');
     state.editingReviewId = null;
     state.pendingImages = [];
+    hideProductAutocomplete();
 }
 
 // ---------------------------------------------------------------------------
@@ -1753,6 +1965,224 @@ function showToast(message, type) {
         }, 300);
     }, 3000);
 }
+
+// ---------------------------------------------------------------------------
+// 상품 자동완성
+// ---------------------------------------------------------------------------
+var productSearchTimer = null;
+
+async function searchProducts(query) {
+    try {
+        var products = await api('/api/products?search=' + encodeURIComponent(query));
+        return Array.isArray(products) ? products : (products.items || []);
+    } catch (e) {
+        console.error('상품 검색 실패:', e);
+        return [];
+    }
+}
+
+function showProductAutocomplete(products) {
+    var dropdown = document.getElementById('productNoDropdown');
+    if (!products || products.length === 0) {
+        dropdown.innerHTML = '<div class="autocomplete-no-results">검색 결과가 없습니다</div>';
+        dropdown.classList.add('visible');
+        return;
+    }
+
+    var html = '';
+    for (var i = 0; i < products.length; i++) {
+        var p = products[i];
+        html += '<div class="autocomplete-item" data-product-no="' + escapeHtml(p.product_no) + '" data-product-name="' + escapeHtml(p.product_name || '') + '">';
+        html += '<span class="product-no">' + escapeHtml(p.product_no) + '</span>';
+        html += '<span class="product-name">' + escapeHtml(p.product_name || '') + '</span>';
+        html += '</div>';
+    }
+    dropdown.innerHTML = html;
+    dropdown.classList.add('visible');
+
+    // 항목 클릭 이벤트
+    var items = dropdown.querySelectorAll('.autocomplete-item');
+    for (var j = 0; j < items.length; j++) {
+        items[j].addEventListener('click', function() {
+            var productNo = this.getAttribute('data-product-no');
+            var productName = this.getAttribute('data-product-name');
+            document.getElementById('formProductNo').value = productNo;
+            document.getElementById('formProductName').value = productName;
+            hideProductAutocomplete();
+        });
+    }
+}
+
+function hideProductAutocomplete() {
+    var dropdown = document.getElementById('productNoDropdown');
+    dropdown.classList.remove('visible');
+    dropdown.innerHTML = '';
+}
+
+// 상품번호 입력 시 자동완성 이벤트
+(function() {
+    var input = document.getElementById('formProductNo');
+
+    input.addEventListener('input', function() {
+        clearTimeout(productSearchTimer);
+        var val = this.value.trim();
+        if (val.length >= 1) {
+            productSearchTimer = setTimeout(async function() {
+                var products = await searchProducts(val);
+                showProductAutocomplete(products);
+            }, 300);
+        } else {
+            hideProductAutocomplete();
+        }
+    });
+
+    // 포커스 해제 시 드롭다운 숨김 (약간의 딜레이로 클릭 이벤트 우선)
+    input.addEventListener('blur', function() {
+        setTimeout(function() {
+            hideProductAutocomplete();
+        }, 200);
+    });
+
+    // 포커스 시 값이 있으면 다시 검색
+    input.addEventListener('focus', function() {
+        var val = this.value.trim();
+        if (val.length >= 1) {
+            clearTimeout(productSearchTimer);
+            productSearchTimer = setTimeout(async function() {
+                var products = await searchProducts(val);
+                showProductAutocomplete(products);
+            }, 300);
+        }
+    });
+})();
+
+// 외부 클릭 시 드롭다운 숨김
+document.addEventListener('click', function(e) {
+    var wrapper = document.getElementById('productNoAutocomplete');
+    if (wrapper && !wrapper.contains(e.target)) {
+        hideProductAutocomplete();
+    }
+});
+
+// ---------------------------------------------------------------------------
+// 상품 관리 모달
+// ---------------------------------------------------------------------------
+var allProducts = [];     // 전체 상품 목록 캐시
+var productListFilter = ''; // 상품 목록 검색어
+
+async function openProductsModal() {
+    document.getElementById('addProductNo').value = '';
+    document.getElementById('addProductName').value = '';
+    document.getElementById('productListSearch').value = '';
+    productListFilter = '';
+    document.getElementById('productsModal').classList.add('active');
+    await loadProductList();
+}
+
+function closeProductsModal() {
+    document.getElementById('productsModal').classList.remove('active');
+}
+
+async function loadProductList() {
+    var tbody = document.getElementById('productListBody');
+    tbody.innerHTML = '<tr><td colspan="3" class="product-list-empty">상품을 불러오는 중...</td></tr>';
+
+    try {
+        var data = await api('/api/products');
+        allProducts = Array.isArray(data) ? data : (data.items || []);
+        renderProductList();
+    } catch (e) {
+        console.error('상품 목록 로드 실패:', e);
+        tbody.innerHTML = '<tr><td colspan="3" class="product-list-empty">상품을 불러올 수 없습니다.</td></tr>';
+    }
+}
+
+function renderProductList() {
+    var tbody = document.getElementById('productListBody');
+    var filtered = allProducts;
+
+    // 검색 필터 적용
+    if (productListFilter) {
+        var q = productListFilter.toLowerCase();
+        filtered = allProducts.filter(function(p) {
+            return (p.product_no && p.product_no.toLowerCase().indexOf(q) !== -1) ||
+                   (p.product_name && p.product_name.toLowerCase().indexOf(q) !== -1);
+        });
+    }
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" class="product-list-empty">등록된 상품이 없습니다.</td></tr>';
+        return;
+    }
+
+    var html = '';
+    for (var i = 0; i < filtered.length; i++) {
+        var p = filtered[i];
+        html += '<tr>';
+        html += '<td>' + escapeHtml(p.product_no) + '</td>';
+        html += '<td>' + escapeHtml(p.product_name || '-') + '</td>';
+        html += '<td><button class="product-delete-btn" onclick="deleteProduct(\'' + escapeHtml(p.product_no) + '\')">삭제</button></td>';
+        html += '</tr>';
+    }
+    tbody.innerHTML = html;
+}
+
+async function addProduct() {
+    var productNo = document.getElementById('addProductNo').value.trim();
+    var productName = document.getElementById('addProductName').value.trim();
+
+    if (!productNo) {
+        showToast('상품번호를 입력하세요.', 'error');
+        return;
+    }
+    if (!productName) {
+        showToast('상품명을 입력하세요.', 'error');
+        return;
+    }
+
+    try {
+        await api('/api/products', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ product_no: productNo, product_name: productName })
+        });
+        showToast('상품이 추가되었습니다.', 'success');
+        document.getElementById('addProductNo').value = '';
+        document.getElementById('addProductName').value = '';
+        await loadProductList();
+        loadStats();
+    } catch (e) {
+        showToast('상품 추가에 실패했습니다: ' + e.message, 'error');
+    }
+}
+
+async function deleteProduct(productNo) {
+    if (!confirm('상품 "' + productNo + '"을(를) 삭제하시겠습니까?')) return;
+
+    try {
+        await api('/api/products/' + encodeURIComponent(productNo), { method: 'DELETE' });
+        showToast('상품이 삭제되었습니다.', 'success');
+        await loadProductList();
+        loadStats();
+    } catch (e) {
+        showToast('상품 삭제에 실패했습니다: ' + e.message, 'error');
+    }
+}
+
+// 상품 목록 내 검색 디바운스
+(function() {
+    var searchInput = document.getElementById('productListSearch');
+    var timer = null;
+
+    searchInput.addEventListener('input', function() {
+        clearTimeout(timer);
+        var val = this.value;
+        timer = setTimeout(function() {
+            productListFilter = val.trim();
+            renderProductList();
+        }, 300);
+    });
+})();
 
 // ---------------------------------------------------------------------------
 // 검색 디바운스

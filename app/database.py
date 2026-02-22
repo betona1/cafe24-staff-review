@@ -29,8 +29,16 @@ CREATE TABLE IF NOT EXISTS review_images (
     FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS products (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_no TEXT NOT NULL UNIQUE,
+    product_name TEXT DEFAULT '',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE INDEX IF NOT EXISTS idx_reviews_product_no ON reviews(product_no);
 CREATE INDEX IF NOT EXISTS idx_review_images_review_id ON review_images(review_id);
+CREATE INDEX IF NOT EXISTS idx_products_product_no ON products(product_no);
 """
 
 

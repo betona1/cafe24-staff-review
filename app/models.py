@@ -81,6 +81,21 @@ class StatsResponse(BaseModel):
     total_products: int
 
 
+# --- Product ---
+
+
+class ProductResponse(BaseModel):
+    id: int
+    product_no: str
+    product_name: str
+    created_at: str
+
+
+class ProductCreate(BaseModel):
+    product_no: str = Field(..., min_length=1)
+    product_name: str = ""
+
+
 # --- Widget ---
 
 class WidgetReviewResponse(BaseModel):

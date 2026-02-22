@@ -15,6 +15,8 @@ from app.models import (
     ExcelError,
     ExcelUploadResult,
     ImageResponse,
+    ProductCreate,
+    ProductResponse,
     ReviewCreate,
     ReviewListResponse,
     ReviewResponse,
@@ -151,6 +153,89 @@ def get_stats(
 
 
 # ---------------------------------------------------------------------------
+# Products -- 상품 목록 / 등록
+# ---------------------------------------------------------------------------
+
+
+@router.get("/products", response_model=list[ProductResponse])
+def list_products(
+    search: Optional[str] = Query(None),
+    db: sqlite3.Connection = Depends(get_db_dependency),
+) -> list[ProductResponse]:
+    """상품 목록을 반환한다. search 파라미터로 상품번호/상품명을 검색할 수 있다."""
+    if search:
+        like_val = f"%{search}%"
+        cursor = db.execute(
+            "SELECT id, product_no, product_name, created_at FROM products "
+            "WHERE product_no LIKE ? OR product_name LIKE ? "
+            "ORDER BY product_name ASC, product_no ASC",
+            (like_val, like_val),
+        )
+    else:
+        cursor = db.execute(
+            "SELECT id, product_no, product_name, created_at FROM products "
+            "ORDER BY product_name ASC, product_no ASC"
+        )
+
+    rows = cursor.fetchall()
+    return [
+        ProductResponse(
+            id=row["id"],
+            product_no=row["product_no"],
+            product_name=row["product_name"] or "",
+            created_at=str(row["created_at"]),
+        )
+        for row in rows
+    ]
+
+
+@router.post("/products", response_model=ProductResponse, status_code=201)
+def create_product(
+    body: ProductCreate,
+    db: sqlite3.Connection = Depends(get_db_dependency),
+) -> ProductResponse:
+    """상품을 수동으로 등록한다. 이미 존재하면 상품명을 업데이트한다."""
+    db.execute(
+        "INSERT INTO products (product_no, product_name) VALUES (?, ?) "
+        "ON CONFLICT(product_no) DO UPDATE SET product_name = excluded.product_name",
+        (body.product_no, body.product_name),
+    )
+
+    row = db.execute(
+        "SELECT id, product_no, product_name, created_at FROM products WHERE product_no = ?",
+        (body.product_no,),
+    ).fetchone()
+
+    return ProductResponse(
+        id=row["id"],
+        product_no=row["product_no"],
+        product_name=row["product_name"] or "",
+        created_at=str(row["created_at"]),
+    )
+
+
+# ---------------------------------------------------------------------------
+# 5-3. DELETE /api/products/{product_no}  -- 상품 삭제
+# ---------------------------------------------------------------------------
+
+
+@router.delete("/products/{product_no}")
+def delete_product(
+    product_no: str,
+    db: sqlite3.Connection = Depends(get_db_dependency),
+) -> dict[str, str]:
+    """상품을 삭제한다."""
+    existing = db.execute(
+        "SELECT id FROM products WHERE product_no = ?", (product_no,)
+    ).fetchone()
+    if existing is None:
+        raise HTTPException(status_code=404, detail="상품을 찾을 수 없습니다.")
+
+    db.execute("DELETE FROM products WHERE product_no = ?", (product_no,))
+    return {"detail": "삭제되었습니다"}
+
+
+# ---------------------------------------------------------------------------
 # 7. POST /api/reviews/excel-upload  -- 엑셀 일괄 업로드
 #    (review_id 경로 매개변수보다 먼저 등록해야 경로 충돌 방지)
 # ---------------------------------------------------------------------------
@@ -229,18 +314,33 @@ async def excel_upload(
             )
             continue
 
+        pno = str(product_no_val).strip()
+        pname = str(product_name_val).strip() if product_name_val else ""
+
         db.execute(
             "INSERT INTO reviews (product_no, product_name, author, rating, title, content) "
             "VALUES (?, ?, ?, ?, ?, ?)",
             (
-                str(product_no_val).strip(),
-                str(product_name_val).strip() if product_name_val else "",
+                pno,
+                pname,
                 str(author_val).strip(),
                 rating_int,
                 str(title_val).strip() if title_val else "",
                 str(content_val).strip(),
             ),
         )
+
+        # 상품 테이블에 자동 등록
+        db.execute(
+            "INSERT OR IGNORE INTO products (product_no, product_name) VALUES (?, ?)",
+            (pno, pname),
+        )
+        if pname:
+            db.execute(
+                "UPDATE products SET product_name = ? WHERE product_no = ? AND product_name = ''",
+                (pname, pno),
+            )
+
         success_count += 1
 
     wb.close()
@@ -307,6 +407,18 @@ def create_review(
         ),
     )
     review_id = cursor.lastrowid
+
+    # 상품 테이블에 자동 등록
+    db.execute(
+        "INSERT OR IGNORE INTO products (product_no, product_name) VALUES (?, ?)",
+        (body.product_no, body.product_name),
+    )
+    if body.product_name:
+        db.execute(
+            "UPDATE products SET product_name = ? WHERE product_no = ? AND product_name = ''",
+            (body.product_name, body.product_no),
+        )
+
     row = db.execute("SELECT * FROM reviews WHERE id = ?", (review_id,)).fetchone()
     return _row_to_review(row, db)
 
